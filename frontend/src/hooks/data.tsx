@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Book from '../interfaces/Book';
 
-export default function useBooksData(): [Book[], () => Promise<void>] {
+export default function useBooksData(): [Book[], () => Promise<void>, () => Promise<void>] {
     const [books, setBooks] = useState<Book[]>([])
     const fetchData = async() => { 
         try {
@@ -21,5 +21,22 @@ export default function useBooksData(): [Book[], () => Promise<void>] {
             console.error(err)
         }
     }
-  return [books, fetchData]
+
+    const deleteBooks = async() => {
+        try {
+            const response = await fetch('http://localhost:3000/books', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            if(!response.ok) {
+                throw new Error('Failed to delete books')
+            }
+            setBooks([]);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+  return [books, fetchData, deleteBooks]
 }

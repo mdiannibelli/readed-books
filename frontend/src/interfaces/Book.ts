@@ -1,7 +1,8 @@
-type Image = {
+export type Image = {
     fileName: string;
     fileType: string;
     fileSize: number;
+    fileData: string
 }
 
 type Book = {

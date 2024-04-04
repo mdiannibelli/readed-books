@@ -1,5 +1,6 @@
 import { ChangeEvent, useState } from "react";
 import Book from "../interfaces/Book";
+import Input from "./Input";
 
 const initialValues = {
     title: '',
@@ -19,54 +20,52 @@ export default function Form() {
         })
     }
 
-    const handleSubmit = (e:React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        sendBook();
+        await sendBook();
         setValues(initialValues)
      }
 
      const sendBook = async() => {
-        await fetch('http://localhost:3000/books', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(values)
-        }).then(res => res.json()).catch(err => console.log(err))
+        try {
+            const response = await fetch('http://localhost:3000/books', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(values)
+            });
+            if(!response.ok) {
+                throw new Error('Error al enviar el libro');
+            }
+            const contentType = response.headers.get('content-type');
+            if(contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                console.log(data)
+            } else {
+                const text = await response.text();
+                console.log(text)
+            }
+            
+        } catch (error) {
+            console.log(error)
+        }
      }
   return (
     <form onSubmit={handleSubmit}>
     <div className='flex gap-4 mt-4'>
-        <div>
-            <label htmlFor="title">
-                <input type="text" onChange={handleChange} value={values.title} name='title' id='title' className='select-none outline-none p-2 text-xs w-full h-full' placeholder='Nombre del libro'/>
-            </label>
-        </div>
-        <div>
-            <label htmlFor="author">
-                <input type="text" onChange={handleChange} value={values.author} name='author' id='author' className='select-none outline-none p-2 text-xs w-full h-full' placeholder='Autor'/>
-            </label>
-        </div>
-        <div>
-            <label htmlFor="year">
-                <input type="text" onChange={handleChange} value={values.year} name='year' id='year' className='select-none outline-none p-2 text-xs w-full h-full' placeholder='Año'/>
-            </label>
-        </div>
-        <div>
-            <label htmlFor="dateStarted">
-                <input type="text" onChange={handleChange} value={values.dateStarted} name='dateStarted' id='dateStarted' className='select-none outline-none p-2 text-xs w-full h-full' placeholder='Fecha en la que empezaste a leerlo'/>
-            </label>
-        </div>
-        <div>
-            <label htmlFor="dateFinished">
-                <input type="text" onChange={handleChange} value={values.dateFinished} name='dateFinished' id='dateFinished' className='select-none outline-none p-2 text-xs w-full h-full' placeholder='Fecha en la que lo terminaste'/>
-            </label>
-        </div>
+        <Input type='text' handleChange={handleChange} value={values.title} name='title' id='title' placeholder='Nombre del libro' />
+        <Input type='text' handleChange={handleChange} value={values.author} name='author' id='author' placeholder='Autor' />
+        <Input type='text' handleChange={handleChange} value={values.year} name='year' id='year' placeholder='Año del libro' />
+        <Input type='text' handleChange={handleChange} value={values.dateStarted} name='dateStarted' id='dateStarted' placeholder='Comienzo de lectura en' />
+        <Input type='text' handleChange={handleChange} value={values.dateFinished} name='dateFinished' id='dateFinished' placeholder='Terminado de leer en' />
+        {/* <Input type='file' handleChange={handleImageChange} name='image' id='image'/> */}
         <div>
             <label htmlFor="image">
-                <input type="file" onChange={handleChange} name='image' id='image' className='select-none outline-none p-2 text-xs w-full h-full text-white'/>
+                <input type="file"  name='image' id='image' className='select-none outline-none p-4 rounded-lg border-2 bg-green-800 text-white text-sm w-full h-full'/>
             </label>
         </div>
+       
     </div>
         <div className='flex justify-center items-center mt-4'>
             <button type='submit' className='text-gray-100 hover:bg-slate-700 hover:text-white duration-300 bg-slate-600 rounded-md px-8 py-2'>Añadir</button>
