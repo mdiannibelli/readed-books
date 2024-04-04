@@ -1,0 +1,7 @@
+- npm init -y
+- npm i express
+- npm i cors
+- npm i nodemon
+- npm i sqlite3
+- Set "dev" in package.json with nodemon src/index.js
+- add .gitignore
